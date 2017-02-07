@@ -177,7 +177,7 @@
 <h2 id="execute-a-client-command">Execute a Client command</h2>
 
 <p>Execute the javascript code you entered in <code class="prettyprint">Value</code> input in the browser of the visitor.</p>
-<pre class="highlight plaintext"><code>  window.url.location = 'http://google.com';
+<pre class="highlight javascript"><code>  <span class="nb">window</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">location</span> <span class="o">=</span> <span class="s1">'http://google.com'</span><span class="p">;</span>
 </code></pre>
 <p>If you use this code in a command called <code class="prettyprint">.google</code>, when executed, it&rsquo;ll redirect the visitor to google homepage.</p>
 
@@ -187,14 +187,184 @@
 
 <h1 id="webhooks">Webhooks</h1>
 
+<p>On the <a href="https://app.talkus.io/admin/integrations">Integration page</a>, you&rsquo;ll have a webhook input.</p>
+
+<p>Fill this input with an entry point on your server.</p>
+
+<p>We&rsquo;ll HTTP POST it with a JSON in the body containing information about the visitor, the agent and the whole conversation.</p>
+
+<p>We call this webhook in these cases:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>start</td>
+<td>when a new conversation is starting.</td>
+</tr>
+<tr>
+<td>end</td>
+<td>when a conversation is closed (.end called by the agent).</td>
+</tr>
+<tr>
+<td>email</td>
+<td>when the visitor entered its email.</td>
+</tr>
+</tbody></table>
+
 <h1 id="javascript-functions">Javascript functions</h1>
-
-<p>With the live chat plugin, you have access to a set of Talkus functions to control the plugin.</p>
-<pre class="highlight plaintext"><code>  talkus('commandName');
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'commandName'</span><span class="p">);</span>
 </code></pre>
-<h2 id="talkus-39-init-39">talkus(&lsquo;init&rsquo;)</h2>
+<p>On the client side of the live chat plugin, you can add more javascript code after the Talkus snippet to customise or interact with the plugin.</p>
 
-<h2 id="talkus-39-open-39">talkus(&#39;open&rsquo;)</h2>
+<h2 id="init">Init</h2>
+
+<blockquote>
+<p>Anonymous initialization</p>
+</blockquote>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="s1">'yourappid'</span><span class="p">);</span>
+</code></pre>
+<p>This function must be first one to call to initialize Talkus.</p>
+
+<p>You can call it multiple times if you want to update the identity of the user. Useful for Single Page Application (SPA).</p>
+
+<blockquote>
+<p>Initialization with identification of the visitor</p>
+</blockquote>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="s1">'yourappid'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">id</span><span class="p">:</span> <span class="s1">'1234'</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'John Doe'</span><span class="p">,</span>
+    <span class="na">email</span><span class="p">:</span> <span class="s1">'john@doe.com'</span><span class="p">,</span>
+    <span class="p">...</span>
+  <span class="p">});</span>
+</code></pre>
+<p>If your visitor is logged, you want to provide extra info to Talkus so your agents will be able to know who the user is.</p>
+
+<p>To do that, you have to add a <em>third parameter</em> to the <code class="prettyprint">talkus(&#39;init&#39;)</code> function that contains a javascript object.</p>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Parameter</th>
+<th> Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">id</code></td>
+<td>optional, must be unique</td>
+<td>An <strong>unique</strong> string that is linked to this user. We&rsquo;ll use it to identify the user in our database. So even if the user is on another computer or in incognito mode, you&rsquo;ll have all the information about him. <strong>The id must be uniq per visitor</strong>.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">name</code></td>
+<td>optional, String</td>
+<td>Name of the user. We&rsquo;ll use it to name the visitor Slack channel.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">email</code></td>
+<td>optional, &lsquo;john@doe.com&rsquo;</td>
+<td>Email address of the user. If you provide the email, Talkus will not ask the visitor for his email. If Talkus has the email but not the name, it&rsquo;ll use the email to name the Slack channel. An email will be sent if the visitor leave a live chat.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">phone</code></td>
+<td>optional, &rsquo;+33123456789&rsquo;</td>
+<td>Phone number of the user. Talkus will use it to send SMS.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">picture</code></td>
+<td>optional, &#39;http://a.co/i.png&rsquo;</td>
+<td>The url to the picture of the visitor avatar. It&rsquo;ll be displayed in your Slack channel.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">tag</code></td>
+<td>optional, &#39;pro&rsquo;</td>
+<td>You can programmatically tag ticket in the html code. Tagging is useful to separate different type of users or subdomains. For example, you can create a <code class="prettyprint">pro</code> tag for pro users that needs instant support. All tickets will go to <code class="prettyprint">#zz-pro</code> Slack channel where you can set notification to a higher level to never miss them.</td>
+</tr>
+</tbody></table>
+
+<p>You can <strong>add any other fields you want</strong> to see them in Slack visitor information. It can be for example if the user is a free or paying user, a link to your backoffice for this user, &hellip;</p>
+
+<aside class="warning">
+All values must be strings.
+</aside>
+
+<h2 id="show">Show</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'show'</span><span class="p">);</span>
+</code></pre>
+<p>Display Talkus button. By default, the button is displayed so you don&rsquo;t need to call it.</p>
+
+<h2 id="hide">Hide</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'hide'</span><span class="p">);</span>
+</code></pre>
+<p>Hide Talkus button.</p>
+
+<h2 id="open">Open</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'open'</span><span class="p">);</span>
+</code></pre>
+<p>Open Talkus plugin.</p>
+
+<h2 id="close">Close</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'close'</span><span class="p">);</span>
+</code></pre>
+<p>Close Talkus plugin.</p>
+
+<h2 id="faq">Faq</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'faq'</span><span class="p">,</span> <span class="s1">'query'</span><span class="p">);</span>
+</code></pre>
+<p>Open Talkus plugin on the faq tab and search for <code class="prettyprint">query</code>.</p>
+
+<h2 id="faqid">FaqId</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'faqId'</span><span class="p">,</span> <span class="s1">'1234567'</span><span class="p">);</span>
+</code></pre>
+<p>Open Talkus plugin on a specific faq entry using the <code class="prettyprint">Id</code> of the faq.</p>
+
+<h2 id="reset">Reset</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'reset'</span><span class="p">);</span>
+</code></pre>
+<p>Remove all cookies/localstorage information on the browser.</p>
+
+<h2 id="callback">Callback</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'callback'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'callback'</span><span class="p">,</span> <span class="nx">name</span><span class="p">);</span> <span class="p">});</span>
+</code></pre>
+<p>Receive event from Talkus. Add a callack Talkus will call when events occur.</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Parameters</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">notification</code></td>
+<td>nbNotification (Number)</td>
+<td>Called when the visitor received a new notification (message from agents). <code class="prettyprint">nbNotification</code> contains the number of notification (by default, it&rsquo;s the number displayed in the red bubble on the top right of the Talkus button).</td>
+</tr>
+<tr>
+<td><code class="prettyprint">open</code></td>
+<td></td>
+<td>Called when the visitor opened the plugin.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">messageSend</code></td>
+<td>[texts]</td>
+<td>Called when a message from the visitor is sent to the agent. <code class="prettyprint">texts</code> is an array of string.</td>
+</tr>
+</tbody></table>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'close'</span><span class="p">);</span>
+</code></pre>
+<blockquote>
+<p>will call your callback function with <code class="prettyprint">close</code> as first parameter.</p>
+</blockquote>
+
+<p>For each <code class="prettyprint">talkus(commandName)</code> call, it&rsquo;ll call your callback, <code class="prettyprint">Name</code> will be commandName.</p>
+
+<h2 id="sendmessage">SendMessage</h2>
+<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'sendMessage'</span><span class="p">,</span> <span class="s1">'Hello'</span><span class="p">);</span>
+</code></pre>
+<p>Send to Talkus a message like if the visitor typed it.</p>
 
       </div>
       <div class="dark-box">
