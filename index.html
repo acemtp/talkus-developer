@@ -110,7 +110,9 @@
       <div id="toc">
       </div>
         <ul class="toc-footer">
-            <li><a href='https://talkus.io'>Talkus homepage</a></li>
+            <li><a href='https://talkus.io'>Talkus Homepage</a></li>
+            <li><a href='http://faq.talkus.io'>Talkus Faq</a></li>
+            <li><a href='https://github.com/acemtp/talkus-developer/blob/master/source/index.html.md'>Report an issue in this doc</a></li>
         </ul>
     </div>
     <div class="page-wrapper">
@@ -142,13 +144,42 @@
 
 <h2 id="post-a-message">Post a message</h2>
 
-<p>Most basic form of a command, when the agent execute the command, it displays the message entered in <code class="prettyprint">Value</code>.</p>
+<p>Most basic form of a dot command, when the agent execute the command, it displays the message entered in <code class="prettyprint">Value</code>.</p>
 
 <p>Useful to create canned responses.</p>
 
 <h2 id="execute-a-server-command">Execute a Server command</h2>
 
+<p>Call a webhook on your server when the dot command is executed by the agent. It&rsquo;s a <code class="prettyprint">POST</code> requests on your server containing a JSON with all the information you need, agent who executed the command, on which visitor, the discussion.</p>
+
+<p>You can reply to this <code class="prettyprint">POST</code> either with:</p>
+
+<ul>
+<li>a string, in this case, the string will be pushed in the discussion and so it&rsquo;ll be displayed to the visitor. If you don&rsquo;t want the visitor sees it, start the string with a double dot (..).</li>
+</ul>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"I am a test message http://slack.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"attachments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"And here's an attachment!"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<ul>
+<li>a JSON object in the <a href="https://api.slack.com/docs/messages/builder">Slack format</a>. So you can craft advanced messages with attachement and all other Slack formatting features.</li>
+</ul>
+
+<p>For example, you can create a command <code class="prettyprint">.ban</code> that will call your server and your server will ban the visitor on your product.</p>
+
+<p>Another example, for an e-commerce website, can be <code class="prettyprint">.status</code> that will find the status of the latest visitor order and returns it to the agent and / or visitor.</p>
+
 <h2 id="execute-a-client-command">Execute a Client command</h2>
+
+<p>Execute the javascript code you entered in <code class="prettyprint">Value</code> input in the browser of the visitor.</p>
+<pre class="highlight plaintext"><code>  window.url.location = 'http://google.com';
+</code></pre>
+<p>If you use this code in a command called <code class="prettyprint">.google</code>, when executed, it&rsquo;ll redirect the visitor to google homepage.</p>
 
 <h2 id="alias-to-another-command">Alias to another command</h2>
 
@@ -156,66 +187,12 @@
 
 <h1 id="webhooks">Webhooks</h1>
 
-<h1 id="javascript-commands">Javascript commands</h1>
+<h1 id="javascript-functions">Javascript functions</h1>
 
-          
-          <h1 id="errors">Errors</h1>
-
-<aside class="notice">This error section is stored in a separate file in `includes/_errors.md`. Slate allows you to optionally separate out your docs into many files&hellip;just save them to the `includes` folder and add them to the top of your `index.md`&rsquo;s frontmatter. Files are included in the order listed.</aside>
-
-<p>The Kittn API uses the following error codes:</p>
-
-<table><thead>
-<tr>
-<th>Error Code</th>
-<th>Meaning</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>400</td>
-<td>Bad Request &ndash; Your request sucks</td>
-</tr>
-<tr>
-<td>401</td>
-<td>Unauthorized &ndash; Your API key is wrong</td>
-</tr>
-<tr>
-<td>403</td>
-<td>Forbidden &ndash; The kitten requested is hidden for administrators only</td>
-</tr>
-<tr>
-<td>404</td>
-<td>Not Found &ndash; The specified kitten could not be found</td>
-</tr>
-<tr>
-<td>405</td>
-<td>Method Not Allowed &ndash; You tried to access a kitten with an invalid method</td>
-</tr>
-<tr>
-<td>406</td>
-<td>Not Acceptable &ndash; You requested a format that isn&rsquo;t json</td>
-</tr>
-<tr>
-<td>410</td>
-<td>Gone &ndash; The kitten requested has been removed from our servers</td>
-</tr>
-<tr>
-<td>418</td>
-<td>I&rsquo;m a teapot</td>
-</tr>
-<tr>
-<td>429</td>
-<td>Too Many Requests &ndash; You&rsquo;re requesting too many kittens! Slow down!</td>
-</tr>
-<tr>
-<td>500</td>
-<td>Internal Server Error &ndash; We had a problem with our server. Try again later.</td>
-</tr>
-<tr>
-<td>503</td>
-<td>Service Unavailable &ndash; We&rsquo;re temporarially offline for maintanance. Please try again later.</td>
-</tr>
-</tbody></table>
+<p>With the live chat plugin, you have access to a set of Talkus functions to control the plugin.</p>
+<pre class="highlight plaintext"><code>  talkus('commandName');
+</code></pre>
+<h2 id="talkus-39-init-39">talkus(&lsquo;init&rsquo;)</h2>
 
       </div>
       <div class="dark-box">
