@@ -95,4 +95,5 @@ With the live chat plugin, you have access to a set of Talkus functions to contr
 
 ## talkus('init')
 
+## talkus('open')
 
