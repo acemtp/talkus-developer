@@ -16,11 +16,13 @@ Don't forget to add the semicolon (`:`) after the login in curl command.
 
 ## Send Message
 
+> Send a message from a new visitor (the `visitorId` will be created):
+
 ```shell
 curl -X POST \
   --user '1234562a44147d1b3b3bad556784beae:' \
   -H 'Content-Type: application/json' \
-  -d '{ "type": ":poop:", "visitorId": "12345", "text": "hello there!" }' \
+  -d '{ "text": "hello there!" }' \
   https://app.talkus.io/api/sendMessage
 ```
 
@@ -29,7 +31,26 @@ curl -X POST \
 ```json
 {
   "ok": "true",
-  "visitorId": "12345"
+  "visitorId": "5rTdrc986vWm12"
+}
+```
+
+> Send a message from an existing visitor:
+
+```shell
+curl -X POST \
+  --user '1234562a44147d1b3b3bad556784beae:' \
+  -H 'Content-Type: application/json' \
+  -d '{ "visitorId": "5rTdrc986vWm12", "text": "I need your help!" }' \
+  https://app.talkus.io/api/sendMessage
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+  "ok": "true",
+  "visitorId": "5rTdrc986vWm12"
 }
 ```
 
@@ -52,8 +73,8 @@ If it's a new visitor (you don't have visitorId), call the entrypoint without `v
 
 ### Parameters
 
-Parameter | hello | Description
---------- | ----- | -----------
+Parameter | Options | Description
+--------- | ------- | -----------
 text | mandatory | The visitor's message.
 visitorId | optional | The id of the visitor. If not set, it'll create a new visitor and returns the new id.
 type | optional | The name or emoji (using long emoji format like `:poop:`) that will be displayed on the ticket.

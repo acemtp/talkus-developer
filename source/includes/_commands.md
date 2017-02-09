@@ -14,16 +14,16 @@ Call a webhook on your server when the dot command is executed by the agent. It'
 
 You can reply to this `POST` either with:
 
+```json
+"I am a test message"
+```
+
 - a string, in this case, the string will be pushed in the discussion and so it'll be displayed to the visitor. If you don't want the visitor sees it, start the string with a double dot (..).
 
 ```json
 {
-    "text": "I am a test message http://slack.com",
-    "attachments": [
-        {
-            "text": "And here's an attachment!"
-        }
-    ]
+    "text": "I am a test message",
+    "attachments": "[{ \"text\": \"And here's an attachment!\" }]"
 }
 ```
 
@@ -38,7 +38,7 @@ Another example, for an e-commerce website, can be `.status` that will find the 
 Execute the javascript code you entered in `Value` input in the browser of the visitor.
 
 ```javascript
-window.url.location = 'http://google.com';
+window.location.href = 'http://google.com';
 ```
 
 If you use this code in a command called `.google`, when executed, it'll redirect the visitor to google homepage.
