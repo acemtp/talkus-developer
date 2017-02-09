@@ -91,7 +91,7 @@
       <script src="javascripts/all.js"></script>
   </head>
 
-  <body class="index" data-languages="[&quot;shell&quot;]">
+  <body class="index" data-languages="[]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -100,9 +100,6 @@
     </a>
     <div class="tocify-wrapper">
       <img src="images/logo.png" alt="Logo" />
-        <div class="lang-selector">
-              <a href="#" data-language-name="shell">shell</a>
-        </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
         </div>
@@ -138,7 +135,103 @@
 
 <p>A Visitor Channel is a Slack channel where you interact with a specific visitor. It&rsquo;s <em>not</em> the <code class="prettyprint">#talkus-support</code>. Visitor Channel names always start with <code class="prettyprint">#z-</code>.</p>
 
-<h1 id="commands">Commands</h1>
+          <h1 id="api">API</h1>
+
+<h2 id="authorization">Authorization</h2>
+<pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
+  --user <span class="s1">'1234562a44147d1b3b3bad556784beae:'</span> <span class="se">\</span>
+  https://app.talkus.io/api/sendMessage
+</code></pre>
+<p>When you call Talkus endpoints, you need to add the <code class="prettyprint">Authorization</code> header using the <code class="prettyprint">Basic</code> authentication type. The login will be the API Key you&rsquo;ll find in the <a href="https://app.talkus.io/admin/integrations">integration page </a> and the password will be empty.</p>
+
+<aside class="notice">
+Don&rsquo;t forget to add the semicolon (`:`) after the login in curl command.
+</aside>
+
+<h2 id="send-message">Send Message</h2>
+
+<blockquote>
+<p>Send a message from a new visitor (the <code class="prettyprint">visitorId</code> will be created):</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
+  --user <span class="s1">'1234562a44147d1b3b3bad556784beae:'</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{ "text": "hello there!" }'</span> <span class="se">\</span>
+  https://app.talkus.io/api/sendMessage
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"ok"</span><span class="p">:</span><span class="w"> </span><span class="s2">"true"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"visitorId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5rTdrc986vWm12"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Send a message from an existing visitor:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
+  --user <span class="s1">'1234562a44147d1b3b3bad556784beae:'</span> <span class="se">\</span>
+  -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+  -d <span class="s1">'{ "visitorId": "5rTdrc986vWm12", "text": "I need your help!" }'</span> <span class="se">\</span>
+  https://app.talkus.io/api/sendMessage
+</code></pre>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"ok"</span><span class="p">:</span><span class="w"> </span><span class="s2">"true"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"visitorId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5rTdrc986vWm12"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>If there&rsquo;s an error, it&rsquo;ll be like this:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"ok"</span><span class="p">:</span><span class="w"> </span><span class="s2">"false"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No text"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p><code class="prettyprint">POST https://app.talkus.io/api/sendMessage</code></p>
+
+<p>Post a new visitor message to an exiting visitor (if you set the <code class="prettyprint">visitorId</code>) or to a new visitor (in this case, the result will contains the <code class="prettyprint">visitorId</code>).</p>
+
+<p>This entrypoint is useful if you want to add a new channel (another SMS provider for example). When your external provider sends you a message coming from a visitor&rsquo;s phone for example, call this entrypoint to create or update a ticket into Talkus (and so in Slack) with the visitor&rsquo;s message.</p>
+
+<p>If it&rsquo;s a new visitor (you don&rsquo;t have visitorId), call the entrypoint without <code class="prettyprint">visitorId</code> so we&rsquo;ll create a new one for you and return it. Then you store in your database the visitorId and phone number (or any other id you want) so next time this visitor sends you a message, you can provide the <code class="prettyprint">visitorId</code> and Talkus will add the message to this existing visitor.</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Options</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>text</td>
+<td>mandatory</td>
+<td>The visitor&rsquo;s message.</td>
+</tr>
+<tr>
+<td>visitorId</td>
+<td>optional</td>
+<td>The id of the visitor. If not set, it&rsquo;ll create a new visitor and returns the new id.</td>
+</tr>
+<tr>
+<td>type</td>
+<td>optional</td>
+<td>The name or emoji (using long emoji format like <code class="prettyprint">:poop:</code>) that will be displayed on the ticket.</td>
+</tr>
+<tr>
+<td>identity</td>
+<td>optional</td>
+<td>A JSON object that containing information of the visitor. <a href="?javascript#init">More information&hellip;</a></td>
+</tr>
+</tbody></table>
+
+          <h1 id="commands">Commands</h1>
 
 <p>On <a href="https://app.talkus.io/admin/commands">Command page</a>, you can create dot commands. A dot command always starts with a dot (.) and are executed only when typed inside a visitor channel (where you answer to your visitor). When you type a dot command, the visitor doesn&rsquo;t see it but he&rsquo;ll see the result of the command, except if the result starts with a double dot (..), in this case, the result will be only be visible to the agent.</p>
 
@@ -153,17 +246,14 @@
 <p>Call a webhook on your server when the dot command is executed by the agent. It&rsquo;s a <code class="prettyprint">POST</code> requests on your server containing a JSON with all the information you need, agent who executed the command, on which visitor, the discussion.</p>
 
 <p>You can reply to this <code class="prettyprint">POST</code> either with:</p>
-
+<pre class="highlight json"><code><span class="s2">"I am a test message"</span><span class="w">
+</span></code></pre>
 <ul>
 <li>a string, in this case, the string will be pushed in the discussion and so it&rsquo;ll be displayed to the visitor. If you don&rsquo;t want the visitor sees it, start the string with a double dot (..).</li>
 </ul>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"I am a test message http://slack.com"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"attachments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"And here's an attachment!"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-    </span><span class="p">]</span><span class="w">
+    </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"I am a test message"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"attachments"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[{ \"text\": \"And here's an attachment!\" }]"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <ul>
@@ -177,7 +267,7 @@
 <h2 id="execute-a-client-command">Execute a Client command</h2>
 
 <p>Execute the javascript code you entered in <code class="prettyprint">Value</code> input in the browser of the visitor.</p>
-<pre class="highlight javascript"><code>  <span class="nb">window</span><span class="p">.</span><span class="nx">url</span><span class="p">.</span><span class="nx">location</span> <span class="o">=</span> <span class="s1">'http://google.com'</span><span class="p">;</span>
+<pre class="highlight javascript"><code><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="s1">'http://google.com'</span><span class="p">;</span>
 </code></pre>
 <p>If you use this code in a command called <code class="prettyprint">.google</code>, when executed, it&rsquo;ll redirect the visitor to google homepage.</p>
 
@@ -185,8 +275,87 @@
 
 <p>Alias a command with another one. For example by default, you have alias of <code class="prettyprint">end</code> with <code class="prettyprint">e</code> so instead of typing <code class="prettyprint">.end</code> to close a discussion, you can just type <code class="prettyprint">.e</code>.</p>
 
-<h1 id="webhooks">Webhooks</h1>
+          <h1 id="webhooks">Webhooks</h1>
 
+<blockquote>
+<p>Example of data sent to your webhook when an agent sends a message to a visitor.</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">[</span><span class="w">  
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"messageAgent"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-01-09T11:09:09.111Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"channelName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z-33123456789"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"visitorName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+33123456789"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"visitorId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a3W7EEfSWanTWyGkg"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"identity"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Scarlet"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+33123456789"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"scar@let.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"picture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://pbs.twimg.com/profile_images/714633747770044416/Qu8c4fje.jpg"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"userAgent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8080/"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"languages"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"agent"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"U0F2Z1234"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"team_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T0F212345"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"moss"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"deleted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9f69e7"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"real_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moss"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tz"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Europe/Amsterdam"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tz_label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Central European Time"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tz_offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"profile"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nt">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moss"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"phone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(123) 555 555"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"skype"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"avatar_hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"82b1244b9af"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_24"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_24.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_32"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_32.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_48"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_48.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_72"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_72.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_192"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_72.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_512"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_72.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_1024"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_72.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"image_original"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_original.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"real_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moss"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"real_name_normalized"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moss"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"moss@reynholm.com"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"is_admin"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"is_owner"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"is_primary_owner"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"is_restricted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"is_ultra_restricted"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"is_bot"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"presence"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+33123456789: \nHi! Do you have any doc to your API?\nMoss: Yes! Go to &lt;http://developer.talkus.io/&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"messages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">  
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"userName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+33123456789"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"userPicture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://pbs.twimg.com/profile_images/714633747770044416/Qu8c4fje.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-01-09T11:08:01.774Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"\nHi! Do you have any doc to your API?"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"userName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Moss"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"userPicture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://avatars.slack-edge.com/2016-11-25/109119461858_82b5e3bbb9af2724c0a4_48.jpg"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-01-09T11:09:09.104Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Yes! Go to &lt;http://developer.talkus.io/&gt;"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
 <p>On the <a href="https://app.talkus.io/admin/integrations">Integration page</a>, you&rsquo;ll have a webhook input.</p>
 
 <p>Fill this input with an entry point on your server.</p>
@@ -206,6 +375,10 @@
 <td>when a new conversation is starting.</td>
 </tr>
 <tr>
+<td>open</td>
+<td>when a conversation is opened (an agent entered the channel).</td>
+</tr>
+<tr>
 <td>end</td>
 <td>when a conversation is closed (.end called by the agent).</td>
 </tr>
@@ -213,120 +386,137 @@
 <td>email</td>
 <td>when the visitor entered its email.</td>
 </tr>
+<tr>
+<td>messageVisitor</td>
+<td>when a visitor sent a new message (<code class="prettyprint">message</code> contains the visitor&rsquo;s message).</td>
+</tr>
+<tr>
+<td>messageAgent</td>
+<td>when an agent sent a new message (<code class="prettyprint">message</code> contains the agent&rsquo;s message).</td>
+</tr>
 </tbody></table>
 
-<h1 id="javascript-functions">Javascript functions</h1>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'commandName'</span><span class="p">);</span>
+          <h1 id="javascript-functions">Javascript functions</h1>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'commandName'</span><span class="p">);</span>
 </code></pre>
-<p>On the client side of the live chat plugin, you can add more javascript code after the Talkus snippet to customise or interact with the plugin.</p>
+<p>On the client side of the live chat plugin, you can add more javascript code after the Talkus snippet to interact with the plugin.</p>
 
 <h2 id="init">Init</h2>
 
 <blockquote>
-<p>Anonymous initialization</p>
+<p>Anonymous initialization:</p>
 </blockquote>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="s1">'yourappid'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="s1">'yourappid'</span><span class="p">);</span>
 </code></pre>
-<p>This function must be first one to call to initialize Talkus.</p>
+<p>This function must be the first one to call to initialize Talkus.</p>
 
-<p>You can call it multiple times if you want to update the identity of the user. Useful for Single Page Application (SPA).</p>
+<p>You can call it multiple times if you want to update the identity of the visitor. Useful for Single Page Application (SPA).</p>
 
 <blockquote>
-<p>Initialization with identification of the visitor</p>
+<p>Initialization with identification of the visitor:</p>
 </blockquote>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="s1">'yourappid'</span><span class="p">,</span> <span class="p">{</span>
-    <span class="na">id</span><span class="p">:</span> <span class="s1">'1234'</span>
-    <span class="na">name</span><span class="p">:</span> <span class="s1">'John Doe'</span><span class="p">,</span>
-    <span class="na">email</span><span class="p">:</span> <span class="s1">'john@doe.com'</span><span class="p">,</span>
-    <span class="p">...</span>
-  <span class="p">});</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'init'</span><span class="p">,</span> <span class="s1">'yourappid'</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">id</span><span class="p">:</span> <span class="s1">'1234'</span>
+  <span class="na">name</span><span class="p">:</span> <span class="s1">'John Doe'</span><span class="p">,</span>
+  <span class="na">email</span><span class="p">:</span> <span class="s1">'john@doe.com'</span><span class="p">,</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre>
-<p>If your visitor is logged, you want to provide extra info to Talkus so your agents will be able to know who the user is.</p>
+<p>If your visitor is logged, you often want to provide extra info to Talkus so your agents will be able to know who the visitor is.</p>
 
 <p>To do that, you have to add a <em>third parameter</em> to the <code class="prettyprint">talkus(&#39;init&#39;)</code> function that contains a javascript object.</p>
+
+<p>This object can contains any keys/values you want but the following keys are used by Talkus to enhance the visitor:</p>
 
 <table><thead>
 <tr>
 <th>Key</th>
-<th>Parameter</th>
+<th>Value</th>
 <th> Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td><code class="prettyprint">id</code></td>
+<td>id</td>
 <td>optional, must be unique</td>
-<td>An <strong>unique</strong> string that is linked to this user. We&rsquo;ll use it to identify the user in our database. So even if the user is on another computer or in incognito mode, you&rsquo;ll have all the information about him. <strong>The id must be uniq per visitor</strong>.</td>
+<td>An <strong>unique</strong> string that is linked to this visitor. We&rsquo;ll use it to identify the visitor in our database. So even if the visitor is on another computer or in incognito mode, you&rsquo;ll have all the information about him. <strong>The id must be uniq per visitor</strong>.</td>
 </tr>
 <tr>
-<td><code class="prettyprint">name</code></td>
+<td>name</td>
 <td>optional, String</td>
-<td>Name of the user. We&rsquo;ll use it to name the visitor Slack channel.</td>
+<td>Name of the visitor. We&rsquo;ll use it to name the visitor Slack channel.</td>
 </tr>
 <tr>
-<td><code class="prettyprint">email</code></td>
+<td>email</td>
 <td>optional, &lsquo;john@doe.com&rsquo;</td>
-<td>Email address of the user. If you provide the email, Talkus will not ask the visitor for his email. If Talkus has the email but not the name, it&rsquo;ll use the email to name the Slack channel. An email will be sent if the visitor leave a live chat.</td>
+<td>Email address of the visitor. If you provide the email, Talkus will not ask the visitor for his email. If Talkus has the email but not the name, it&rsquo;ll use the email to name the Slack channel. An email will be sent if the visitor leave a live chat.</td>
 </tr>
 <tr>
-<td><code class="prettyprint">phone</code></td>
+<td>phone</td>
 <td>optional, &rsquo;+33123456789&rsquo;</td>
-<td>Phone number of the user. Talkus will use it to send SMS.</td>
+<td>Phone number of the visitor. Talkus will use it to send SMS.</td>
 </tr>
 <tr>
-<td><code class="prettyprint">picture</code></td>
+<td>picture</td>
 <td>optional, &#39;http://a.co/i.png&rsquo;</td>
 <td>The url to the picture of the visitor avatar. It&rsquo;ll be displayed in your Slack channel.</td>
 </tr>
 <tr>
-<td><code class="prettyprint">tag</code></td>
+<td>tag</td>
 <td>optional, &#39;pro&rsquo;</td>
-<td>You can programmatically tag ticket in the html code. Tagging is useful to separate different type of users or subdomains. For example, you can create a <code class="prettyprint">pro</code> tag for pro users that needs instant support. All tickets will go to <code class="prettyprint">#zz-pro</code> Slack channel where you can set notification to a higher level to never miss them.</td>
+<td>You can programmatically tag ticket in the html code. Tagging is useful to separate different type of visitors or subdomains. For example, you can create a <code class="prettyprint">pro</code> tag for pro visitors that needs instant support. All tickets will go to <code class="prettyprint">#zz-pro</code> Slack channel instead of the default <code class="prettyprint">#talkus-support</code> where you can set Slack notification to a higher level to never miss them.</td>
 </tr>
 </tbody></table>
 
-<p>You can <strong>add any other fields you want</strong> to see them in Slack visitor information. It can be for example if the user is a free or paying user, a link to your backoffice for this user, &hellip;</p>
+<p>You can <strong>add any other fields you want</strong>, they&rsquo;ll be displayed in Slack visitor information. It can be useful for example to display if the visitor uses a free or paying plan, display a link to your backoffice for this visitor, &hellip;</p>
 
-<aside class="warning">
-All values must be strings.
+<aside class="notice">
+All values must be strings. No numbers nor objects.
 </aside>
 
 <h2 id="show">Show</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'show'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'show'</span><span class="p">);</span>
 </code></pre>
 <p>Display Talkus button. By default, the button is displayed so you don&rsquo;t need to call it.</p>
 
 <h2 id="hide">Hide</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'hide'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'hide'</span><span class="p">);</span>
 </code></pre>
 <p>Hide Talkus button.</p>
 
 <h2 id="open">Open</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'open'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'open'</span><span class="p">);</span>
 </code></pre>
 <p>Open Talkus plugin.</p>
 
 <h2 id="close">Close</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'close'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'close'</span><span class="p">);</span>
 </code></pre>
 <p>Close Talkus plugin.</p>
 
+<h2 id="news">News</h2>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'news'</span><span class="p">);</span>
+</code></pre>
+<p>Open Talkus plugin on the news tab.</p>
+
 <h2 id="faq">Faq</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'faq'</span><span class="p">,</span> <span class="s1">'query'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'faq'</span><span class="p">,</span> <span class="s1">'query'</span><span class="p">);</span>
 </code></pre>
 <p>Open Talkus plugin on the faq tab and search for <code class="prettyprint">query</code>.</p>
 
 <h2 id="faqid">FaqId</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'faqId'</span><span class="p">,</span> <span class="s1">'1234567'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'faqId'</span><span class="p">,</span> <span class="s1">'1234567'</span><span class="p">);</span>
 </code></pre>
 <p>Open Talkus plugin on a specific faq entry using the <code class="prettyprint">Id</code> of the faq.</p>
 
 <h2 id="reset">Reset</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'reset'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'reset'</span><span class="p">);</span>
 </code></pre>
 <p>Remove all cookies/localstorage information on the browser.</p>
 
 <h2 id="callback">Callback</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'callback'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'callback'</span><span class="p">,</span> <span class="nx">name</span><span class="p">);</span> <span class="p">});</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'callback'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'callback'</span><span class="p">,</span> <span class="nx">name</span><span class="p">);</span>
+<span class="p">});</span>
 </code></pre>
 <p>Receive event from Talkus. Add a callack Talkus will call when events occur.</p>
 
@@ -353,7 +543,7 @@ All values must be strings.
 <td>Called when a message from the visitor is sent to the agent. <code class="prettyprint">texts</code> is an array of string.</td>
 </tr>
 </tbody></table>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'close'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'close'</span><span class="p">);</span>
 </code></pre>
 <blockquote>
 <p>will call your callback function with <code class="prettyprint">close</code> as first parameter.</p>
@@ -362,15 +552,25 @@ All values must be strings.
 <p>For each <code class="prettyprint">talkus(commandName)</code> call, it&rsquo;ll call your callback, <code class="prettyprint">Name</code> will be commandName.</p>
 
 <h2 id="sendmessage">SendMessage</h2>
-<pre class="highlight javascript"><code>  <span class="nx">talkus</span><span class="p">(</span><span class="s1">'sendMessage'</span><span class="p">,</span> <span class="s1">'Hello'</span><span class="p">);</span>
+<pre class="highlight javascript"><code><span class="nx">talkus</span><span class="p">(</span><span class="s1">'sendMessage'</span><span class="p">,</span> <span class="s1">'Hello'</span><span class="p">);</span>
 </code></pre>
 <p>Send to Talkus a message like if the visitor typed it.</p>
 
+          <h1 id="external-channels">External channels</h1>
+
+<p>Talkus has channels like live chat, email, sms, phone, twitter, facebook but you can add your own channel.</p>
+
+<p>It can be useful to integrate in Talkus your own SMS provider, Snapchat or any other channel you want.</p>
+
+<p>To do that, you need to implement 2 things:</p>
+
+<ul>
+<li>Code a webhook in your server and add the url in the <a href="https://app.talkus.io/admin/integrations">integration page</a> so we can call your server when an agent posts a message (that you need to send to the visitor using your provider).</li>
+<li>Call our <a href="?javascript#send-message"><code class="prettyprint">sendMessage</code></a> API we can create or update the visitor ticket when you receive a message from your visitor.</li>
+</ul>
+
       </div>
       <div class="dark-box">
-          <div class="lang-selector">
-                <a href="#" data-language-name="shell">shell</a>
-          </div>
       </div>
     </div>
   </body>
