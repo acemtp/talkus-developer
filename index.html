@@ -140,7 +140,7 @@
 <h2 id="authorization">Authorization</h2>
 <pre class="highlight shell"><code>curl -X POST <span class="se">\</span>
   --user <span class="s1">'1234562a44147d1b3b3bad556784beae:'</span> <span class="se">\</span>
-  https://app.talkus.io/api/sendMessage
+  https://app.talkus.io/api/test
 </code></pre>
 <p>When you call Talkus endpoints, you need to add the <code class="prettyprint">Authorization</code> header using the <code class="prettyprint">Basic</code> authentication type. The login will be the API Key you&rsquo;ll find in the <a href="https://app.talkus.io/admin/integrations">integration page </a> and the password will be empty.</p>
 
@@ -157,7 +157,7 @@ Don&rsquo;t forget to add the semicolon (`:`) after the login in curl command.
   --user <span class="s1">'1234562a44147d1b3b3bad556784beae:'</span> <span class="se">\</span>
   -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
   -d <span class="s1">'{ "text": "hello there!" }'</span> <span class="se">\</span>
-  https://app.talkus.io/api/sendMessage
+  https://app.talkus.io/api/visitor/message
 </code></pre>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
@@ -174,7 +174,7 @@ Don&rsquo;t forget to add the semicolon (`:`) after the login in curl command.
   --user <span class="s1">'1234562a44147d1b3b3bad556784beae:'</span> <span class="se">\</span>
   -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
   -d <span class="s1">'{ "visitorId": "5rTdrc986vWm12", "text": "I need your help!" }'</span> <span class="se">\</span>
-  https://app.talkus.io/api/sendMessage
+  https://app.talkus.io/api/visitor/message
 </code></pre>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
@@ -192,7 +192,7 @@ Don&rsquo;t forget to add the semicolon (`:`) after the login in curl command.
   </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No text"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p><code class="prettyprint">POST https://app.talkus.io/api/sendMessage</code></p>
+<p><code class="prettyprint">POST https://app.talkus.io/api/visitor/message</code></p>
 
 <p>Post a new visitor message to an exiting visitor (if you set the <code class="prettyprint">visitorId</code>) or to a new visitor (in this case, the result will contains the <code class="prettyprint">visitorId</code>).</p>
 
