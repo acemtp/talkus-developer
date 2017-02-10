@@ -5,7 +5,7 @@
 ```shell
 curl -X POST \
   --user '1234562a44147d1b3b3bad556784beae:' \
-  https://app.talkus.io/api/sendMessage
+  https://app.talkus.io/api/test
 ```
 
 When you call Talkus endpoints, you need to add the `Authorization` header using the `Basic` authentication type. The login will be the API Key you'll find in the [integration page ](https://app.talkus.io/admin/integrations) and the password will be empty.
@@ -23,7 +23,7 @@ curl -X POST \
   --user '1234562a44147d1b3b3bad556784beae:' \
   -H 'Content-Type: application/json' \
   -d '{ "text": "hello there!" }' \
-  https://app.talkus.io/api/sendMessage
+  https://app.talkus.io/api/visitor/message
 ```
 
 > The above command returns JSON structured like this:
@@ -42,7 +42,7 @@ curl -X POST \
   --user '1234562a44147d1b3b3bad556784beae:' \
   -H 'Content-Type: application/json' \
   -d '{ "visitorId": "5rTdrc986vWm12", "text": "I need your help!" }' \
-  https://app.talkus.io/api/sendMessage
+  https://app.talkus.io/api/visitor/message
 ```
 
 > The above command returns JSON structured like this:
@@ -63,7 +63,7 @@ curl -X POST \
 }
 ```
 
-`POST https://app.talkus.io/api/sendMessage`
+`POST https://app.talkus.io/api/visitor/message`
 
 Post a new visitor message to an exiting visitor (if you set the `visitorId`) or to a new visitor (in this case, the result will contains the `visitorId`).
 
