@@ -114,6 +114,15 @@ talkus('reset');
 
 Remove all cookies/localstorage information on the browser.
 
+
+## NoTalkusOnMobile
+
+```javascript
+talkus('noTalkusOnMobile');
+```
+
+Disable completely Talkus on mobile. This function must be called *before* the talkus('init') call.
+
 ## Callback
 
 ```javascript
